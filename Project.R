@@ -1,0 +1,10 @@
+library(tidyverse)
+library(dplyr)
+library(readxl)
+WMATA <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
+summary(WMATA)
+filtered_data <- WMATA %>% filter(WMATA$Station.Name =="Tenleytown-AU", WMATA$Day.of.Week %in% c("Mon","Fri"))
+which(is.na(filtered_data), arr.ind = TRUE)
+str(filtered_data)
+head(filtered_data)
+  
