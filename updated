@@ -1,0 +1,67 @@
+#data 
+library(tidyverse)
+library(dplyr)
+library(moments)
+wmata <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
+wmata
+
+#subset the data 
+subset_wmata <- wmata %>% filter(Station.Name == "Tenleytown-AU",
+                                Day.of.Week %in% c("Mon", "Fri"))
+subset_wmata
+
+#check variable type
+str(subset_wmata$Entries.Or.Boardings)
+str(subset_wmata$Exits)
+str(subset_wmata$Day.of.Week)
+str(subset_wmata$Station.Name)
+str(subset_wmata$Holiday)
+#Entries and Exits are int | Day of Week, Station Name, and Holiday are chr
+
+#check for missing and duplicate values
+colSums(is.na(subset_wmata)) #0 missing
+sum(duplicated(subset_wmata)) #0 duplicates
+
+#UNIVARIATE ANALYSIS 
+#summary for each variable
+#Entries
+summary(subset_wmata$Entries.Or.Boardings)
+skewness(subset_wmata$Entries.Or.Boardings, na.rm = TRUE)
+sd(subset_wmata$Entries.Or.Boardings)
+#Exits
+summary(subset_wmata$Exits)
+skewness(subset_wmata$Exits, na.rm = TRUE)
+sd(subset_wmata$Exits)
+#Day of Week
+table(subset_wmata$Day.of.Week)
+prop.table(table(subset_wmata$Day.of.Week))
+#Station Name - only one
+table(subset_wmata$Station.Name)
+#Holidays
+table(subset_wmata$Holiday)
+prop.table(table(subset_wmata$Holiday))
+
+#BIVARIATE ANALYSIS 
+#1 - Entries <-> Exits | numeric <-> numeric analysis 
+
+#scatterplot
+library(ggplot2)
+ggplot(subset_wmata, aes(x = Entries.Or.Boardings, y = Exits)) +
+  geom_point(alpha = 0.5, color = "#3D74B6", size = 2) +
+  geom_smooth(method = "lm", se = FALSE, color = "#D25D5D", size = 1) +
+  labs(title = "Entries vs Exits at Tenleytown-AU (Mondays & Fridays)", 
+       subtitle = "Red Line = Regression Fit",
+       x = "Entries", y = "Exits") +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold", size = 13, hjust = 0.5),
+        plot.subtitle = element_text(size = 10, color = "#D25D5D", hjust = 0.5),
+        axis.title = element_text(face = "bold"))
+#regression 
+cor(subset_wmata$Entries.Or.Boardings, subset_wmata$Exits)
+
+#2 - Entries <-> Day of Week | numeric <-> categorical
+#mean of entries on Mon vs Fri
+aggregate(Entries.Or.Boardings ~ Day.of.Week, data = subset_wmata, mean)
+
+
+
