@@ -3,7 +3,9 @@ library(tidyverse)
 library(dplyr)
 library(moments)
 library(ggplot2)
-wmata <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
+install.packages("scales")
+library(scales)
+wmata <- read.csvwmata <- read.csvwmata <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
 wmata
 
 #subset the data 
@@ -97,4 +99,14 @@ day_summary <- subset_wmata %>%
   )
 day_summary
 
-#3 - 
+#3 - Holiday <-> Day of Week | categorical <-> categorical analysis
+# Cross-tab of Day of Week and Holiday
+day_holiday_tab <- table(subset_wmata$Day.of.Week, subset_wmata$Holiday)
+day_holiday_tab
+
+# Row proportions (distribution within each day)
+prop.table(day_holiday_tab, margin = 1) * 100
+
+
+
+
