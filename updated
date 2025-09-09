@@ -3,15 +3,15 @@ library(tidyverse)
 library(dplyr)
 library(moments)
 library(ggplot2)
-install.packages("scales")
 library(scales)
 wmata <- read.csvwmata <- read.csvwmata <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
 wmata
 
 #subset the data 
-subset_wmata <- wmata %>%
+subset_wmata <- wmata %>% 
   filter(Station.Name %in% c("Tenleytown-AU", "Foggy Bottom-GWU"),
-         Day.of.Week %in% c("Mon", "Fri"))
+         Day.of.Week %in% c("Mon", "Fri")) %>% mutate(Total_Traffic = Entries.Or.Boardings + Exits)
+
 subset_wmata
 
 #check variable type
@@ -20,6 +20,7 @@ str(subset_wmata$Exits)
 str(subset_wmata$Day.of.Week)
 str(subset_wmata$Station.Name)
 str(subset_wmata$Holiday)
+str(subset_wmata$Total_Traffic)
 #Entries and Exits are int | Day of Week, Station Name, and Holiday are chr
 
 #check for missing and duplicate values
@@ -56,6 +57,20 @@ exits_summary <- subset_wmata %>%
 
 exits_summary
 
+#Total Traffic 
+total.traffic_summary <- subset_wmata %>%
+  summarise(
+    Freq = n(),
+    Min = min(Total_Traffic, na.rm = TRUE),
+    Max = max(Total_Traffic, na.rm = TRUE),
+    Median = median(Total_Traffic, na.rm = TRUE),
+    Mean = mean(Total_Traffic, na.rm = TRUE),
+    SD = sd(Total_Traffic, na.rm = TRUE),
+    Skewness = skewness(Total_Traffic, na.rm = TRUE)
+  )
+
+total.traffic_summary
+
 #Day of Week
 table(subset_wmata$Day.of.Week)
 prop.table(table(subset_wmata$Day.of.Week))
@@ -86,7 +101,7 @@ cor(subset_wmata$Entries.Or.Boardings, subset_wmata$Exits)
 
 #2 - Entries <-> Day of Week | numeric <-> categorical analysis 
 # Summary stats 
-day_summary <- subset_wmata %>%
+day.entries_summary <- subset_wmata %>%
   group_by(Day.of.Week) %>%
   summarise(
     Freq = n(),
@@ -97,7 +112,7 @@ day_summary <- subset_wmata %>%
     SD = sd(Entries.Or.Boardings, na.rm = TRUE),
     Skewness = skewness(Entries.Or.Boardings, na.rm = TRUE)
   )
-day_summary
+day.entries_summary
 
 #3 - Holiday <-> Day of Week | categorical <-> categorical analysis
 # Cross-tab of Day of Week and Holiday
@@ -107,6 +122,43 @@ day_holiday_tab
 # Row proportions (distribution within each day)
 prop.table(day_holiday_tab, margin = 1) * 100
 
+#4 - Station Traffic <-> AU vs GWU | numeric <-> categorical analysis
+#merging entries and exits to create a new numeric variable for Total Traffic at the Stations
+subset_wmata <- subset_wmata %>% mutate(Total_Traffic = Entries.Or.Boardings + Exits) 
+#boxplot
+ggplot(subset_wmata, aes(x = Station.Name, y = Total_Traffic, fill = Station.Name)) +
+  scale_fill_manual(values = c("Tenleytown-AU" = "#D25D5D", "Foggy Bottom-GWU" = "#3D74B6")) +
+  geom_boxplot(alpha = 0.75, outlier.shape = 21, outlier.color = "black", outlier.fill = "white") +
+  labs(
+    title = "Total Metro Traffic by Station",
+    subtitle = "Sum of Entries and Exits at AU and GWU Campus Metro Stops",
+    x = "Metro Station",
+    y = "Total Traffic"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, size = 9),
+    axis.title = element_text(face = "bold", size = 12),
+    legend.position = "none"
+  )
+
+#5 - Station Traffic <-> Holidays | numeric <-> categorical analysis 
+# Dot Plot
+
+ggplot(subset_wmata, aes(x = Holiday, y = Total_Traffic, color = Holiday)) +
+  geom_jitter(width = 0.2, alpha = 0.5, size = 1.5) +
+  scale_color_manual(values = c("No" = "#D25D5D", "Yes" = "#3D74B6")) +  
+  labs(
+    title = "Daily Total Traffic on Holidays vs Non-Holidays",
+    x = "Holiday",
+    y = "Total Traffic (Entries + Exits)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(plot.title = element_text(face = "bold", hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5, size = 9),
+        axis.title = element_text(face = "bold", size = 12),
+    legend.position = "none")
 
 
 
