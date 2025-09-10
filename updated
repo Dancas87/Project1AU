@@ -101,18 +101,18 @@ cor(subset_wmata$Entries.Or.Boardings, subset_wmata$Exits)
 
 #2 - Entries <-> Day of Week | numeric <-> categorical analysis 
 # Summary stats 
-day.entries_summary <- subset_wmata %>%
+Total.Traffic_summary <- subset_wmata %>%
   group_by(Day.of.Week) %>%
   summarise(
     Freq = n(),
-    Min = min(Entries.Or.Boardings, na.rm = TRUE),
-    Max = max(Entries.Or.Boardings, na.rm = TRUE),
-    Median = median(Entries.Or.Boardings, na.rm = TRUE),
-    Mean = mean(Entries.Or.Boardings, na.rm = TRUE),
-    SD = sd(Entries.Or.Boardings, na.rm = TRUE),
-    Skewness = skewness(Entries.Or.Boardings, na.rm = TRUE)
+    Min = min(Total_Traffic, na.rm = TRUE),
+    Max = max(Total_Traffic, na.rm = TRUE),
+    Median = median(Total_Traffic, na.rm = TRUE),
+    Mean = mean(Total_Traffic, na.rm = TRUE),
+    SD = sd(Total_Traffic, na.rm = TRUE),
+    Skewness = skewness(Total_Traffic, na.rm = TRUE)
   )
-day.entries_summary
+Total.Traffic_summary
 
 #3 - Holiday <-> Day of Week | categorical <-> categorical analysis
 # Cross-tab of Day of Week and Holiday
@@ -160,5 +160,34 @@ ggplot(subset_wmata, aes(x = Holiday, y = Total_Traffic, color = Holiday)) +
         axis.title = element_text(face = "bold", size = 12),
     legend.position = "none")
 
+#6 - Entries <-> Tenleytown AU vs Foggy Bottom GWU | numeric <-> categorical
+entries_summary <- subset_wmata %>%
+  group_by(Station.Name) %>%
+  summarise(
+    Freq = n(),
+    Min = min(Entries.Or.Boardings, na.rm = TRUE),
+    Max = max(Entries.Or.Boardings, na.rm = TRUE),
+    Med = median(Entries.Or.Boardings, na.rm = TRUE),
+    Mean = mean(Entries.Or.Boardings, na.rm = TRUE),
+    SD = sd(Entries.Or.Boardings, na.rm = TRUE),
+    Skewness = skewness(Entries.Or.Boardings, na.rm = TRUE)
+  )
+
+entries_summary
+
+#7 - Exits <-> Tenleytown AU vs Foggy Bottom GWU | numeric <-> categorical
+exits_summary <- subset_wmata %>%
+  group_by(Station.Name) %>%
+  summarise(
+    Freq = n(),
+    Min = min(Exits, na.rm = TRUE),
+    Max = max(Exits, na.rm = TRUE),
+    Med = median(Exits, na.rm = TRUE),
+    Mean = mean(Exits, na.rm = TRUE),
+    SD = sd(Exits, na.rm = TRUE),
+    Skewness = skewness(Exits, na.rm = TRUE)
+  )
+
+exits_summary
 
 
