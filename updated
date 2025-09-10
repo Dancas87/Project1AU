@@ -5,14 +5,11 @@ library(moments)
 library(ggplot2)
 library(scales)
 wmata <- read.csvwmata <- read.csvwmata <- read.csv("WMATA_DailyRidership_Bus_Rail_2021.08_to_2024.06.csv")
-wmata
 
 #subset the data 
 subset_wmata <- wmata %>% 
   filter(Station.Name %in% c("Tenleytown-AU", "Foggy Bottom-GWU"),
          Day.of.Week %in% c("Mon", "Fri")) %>% mutate(Total_Traffic = Entries.Or.Boardings + Exits)
-
-subset_wmata
 
 #check variable type
 str(subset_wmata$Entries.Or.Boardings)
@@ -21,7 +18,7 @@ str(subset_wmata$Day.of.Week)
 str(subset_wmata$Station.Name)
 str(subset_wmata$Holiday)
 str(subset_wmata$Total_Traffic)
-#Entries and Exits are int | Day of Week, Station Name, and Holiday are chr
+#Entries, Exits, and Total Traffic are int | Day of Week, Station Name, and Holiday are chr
 
 #check for missing and duplicate values
 colSums(is.na(subset_wmata)) #0 missing
@@ -190,4 +187,24 @@ exits_summary <- subset_wmata %>%
 
 exits_summary
 
+#TRIVARIATE ANALYSIS 
+#Total Traffic on GWU vs AU on Holidays and Non-Holidays
+
+ggplot(subset_wmata, aes(x = Station.Name, y = Total_Traffic, fill = Station.Name)) +
+  geom_boxplot(alpha = 0.7, outlier.shape = 21, outlier.color = "black") +
+  scale_fill_manual(values = c("Tenleytown-AU" = "#D25D5D", "Foggy Bottom-GWU" = "#3D74B6")) +
+  facet_wrap(~ Holiday, labeller = labeller(Holiday = c("Yes" = "Holidays", "No" = "Non-Holidays"))) +
+  labs(
+    title = "Total Metro Traffic at AU v.s. GWU",
+    subtitle = "Comparison of Holiday vs Non-Holiday Traffic",
+    x = "Station Name",
+    y = "Total Traffic (Entries + Exits)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(hjust = 0.5, size = 9),
+    axis.title = element_text(face = "bold", size = 11),
+    legend.position = "none"
+  )
 
